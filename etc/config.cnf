@@ -1,0 +1,17 @@
+[service]
+port = 8085
+base-url = /
+api-base-url = /api/v1/
+cdn-url = http://localhost:8082
+jinja2-templates-dir = static
+swagger-yml = sample/swagger.yml
+swagger-url = /api/v1/doc
+db = sample/db.yml
+
+[logging]
+;access-logfile = /var/log/service/access.log
+;access-maxbytes = 1000000
+;access-backupcount = 5
+;error-logfile = /var/log/service/error.log
+;error-maxbytes = 1000000
+;error-backupcount = 5

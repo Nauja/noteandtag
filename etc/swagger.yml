@@ -1,0 +1,71 @@
+---
+swagger: "2.0"
+info:
+  description: "Node and Tag"
+  version: "0.1a1"
+  title: "Node and Tag REST API"
+basePath: "/api/v1"
+tags:
+- name: "tags"
+  description: "Retrieve tags informations"
+tags:
+- name: "notes"
+  description: "Retrieve notes informations"
+schemes:
+- "https"
+- "http"
+paths:
+  /tags:
+    get:
+      description: "Get all tags."
+      tags:
+      - tags
+      produces:
+      - text/json
+      responses:
+        "200":
+            description: successful operation. Return tags
+  /notes:
+    get:
+      description: "Get all notes."
+      tags:
+      - notes
+      produces:
+      - text/json
+      responses:
+        "200":
+            description: successful operation. Return notes informations
+  /notes/{tags}:
+    get:
+      description: "Get all notes matching tags."
+      tags:
+      - notes
+      produces:
+      - text/json
+      parameters:
+      - name: "tags"
+        in: "path"
+        default: "tag1:tag2"
+        description: "list of tags"
+        required: true
+        type: "list"
+      responses:
+        "200":
+            description: successful operation. Return notes informations
+  /notes/{id}:
+    get:
+      description: "Get a note by id."
+      tags:
+      - notes
+      produces:
+      - text/json
+      parameters:
+      - name: "id"
+        in: "path"
+        default: "1"
+        description: "list of tags"
+        required: true
+        type: "int"
+      responses:
+        "200":
+            description: successful operation. Return note informations
