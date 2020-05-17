@@ -5,8 +5,8 @@ import argparse
 import json
 from aiohttp import web
 import logging
-from nodeandtag.app import Application
-from nodeandtag import configuration
+from noteandtag.app import Application
+from noteandtag import configuration
 
 
 def setup_logging(
