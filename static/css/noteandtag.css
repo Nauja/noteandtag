@@ -20,9 +20,106 @@ h1 {
   font-size: 40pt;
   color: #fff;
   margin-top: 0.5em;
+  margin-bottom: 0.7em;
   text-shadow: 1px 1px 1px #000;
 }
 
+.nat-tags {
+	padding-top: 1em;
+}
+
 .nat-tag {
+	float: left;
 	color: white;
+	text-decoration: none;
+	display: block;
+	line-height: 2.2em;
+}
+
+.nat-tag + .nat-tag {
+	margin-left: 5px;
+}
+
+.nat-tag:hover {
+	color: white;
+	text-decoration: none;
+}
+
+.nat-tag-name {
+	color: #b7b7b7;
+    background-color: #4e4e4e;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    padding-bottom: 0.25em;
+}
+
+.nat-tag-selected .nat-tag-name {
+	color: white;
+    background-color: #52794a;
+    border-top: 1px solid #95c38d;
+    border-left: 1px solid #95c38d;
+    border-right: 1px solid #20351c;
+    border-bottom: 1px solid #20351c;
+}
+
+.nat-tag-total {
+	color: white;
+    background-color: #737373;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    padding-bottom: 0.25em;
+}
+
+.nat-note {
+    color: black;
+    margin-top: 1em;
+}
+
+.nat-note-label {
+    background-color: #52794a;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    line-height: 2em;
+}
+
+.nat-note-body {
+    background-color: #cccccc;
+    border-top: 1px solid white;
+    border-left: 1px solid white;
+    border-right: 1px solid rgba(0, 0, 0, 0.6);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 5px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    line-height: 2em;
+}
+
+@media (max-width: 575px) {
+	h1 {
+  		font-size: 32pt;
+		margin-bottom: 0.5em;
+	}
 }
