@@ -18,6 +18,6 @@ RUN apt-get upgrade -y && \
     apt-get install -y python3 python3-pip && \
     python3 -m pip install -r requirements.txt
 
-CMD [ "python3", "-m", "noteandtag", "run", "/etc/service" ]
+CMD [ "python3", "-m", "noteandtag", "/etc/service" ]
 
 EXPOSE 8080
