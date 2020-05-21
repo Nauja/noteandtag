@@ -42,6 +42,14 @@ class Database():
 
         return None
 
+    def update_note(self, id, data):
+        for _ in self._notes:
+            if _["id"] == id:
+                _.update(data)
+                return True
+
+        return False
+
     def load_notes(self):
         '''Load notes from external YAML file.
 

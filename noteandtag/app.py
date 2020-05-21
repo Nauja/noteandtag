@@ -99,6 +99,20 @@ def APINoteByIdView(*, db: monad.Database) -> web.View:
                 )
             )
 
+        async def post(self):
+            id = int(self.request.match_info["id"])
+            data = await self.request.json()
+            if not db.update_note(id, data["data"]):
+                return web.HTTPNotFound()
+
+            db.save_notes()
+
+            return web.Response(
+                text=json.dumps(
+                    {"result": "Ok"}, ensure_ascii=False
+                )
+            )
+
     return Wrapper
 
 
