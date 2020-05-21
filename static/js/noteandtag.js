@@ -53,6 +53,64 @@ $(document).ready(function() {
 		}
 	};
 
+	var NoteEditor = function(note_ui) {
+		this.root = $("<div>", {'class': 'nat-note-editor'}).append(
+			$("<div>", {'class': 'nat-note-editor-body'}).append(
+				$("<textarea>", {'text': note_ui.data["body"]}),
+				$("<div>", {'class': 'nat-note-editor-toolbar'}).append(
+					$("<input>", {'type': 'button', 'value': "Save"}),
+					$("<div>", {'style': 'clear: both;'})
+				)
+			)
+		);
+		this._note_ui = note_ui;
+		this._widgets = {
+			textarea: this.root.find("textarea").first(),
+			save: this.root.find(".nat-note-editor-toolbar input").first()
+		};
+		this._widgets.save.click(() => this._on_save_clicked());
+	};
+	
+	NoteEditor.prototype = {
+		_on_save_clicked: function() {
+			this.root.remove();
+			this._note_ui.show();
+		}
+	};
+
+	var NoteUI = function(data) {
+		this.root = $("<div>", {'class': 'nat-note', 'data-id': data["id"]}).append(
+			$("<div>", {'class': 'nat-note-head'}).append(
+				$("<span>", {'class': 'nat-note-label', 'text': data["label"]}),
+				$("<div>", {'class': 'nat-note-toolbar'}).append(
+					$("<button>", {'class': 'nat-note-edit', 'type': 'button'}).append(
+						$("<img>", {'src': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr.svg/20px-OOjs_UI_icon_edit-ltr.svg.png'})
+					)
+				)
+			),
+			$("<div>", {'class': 'nat-note-body', 'text': data["body"]}),
+		);
+		this.data = data;
+		this._widgets = {
+			edit: this.root.find(".nat-note-edit").first()
+		};
+		this._widgets.edit.click(() => this._on_edit_clicked());
+	};
+	
+	NoteUI.prototype = {
+		_on_edit_clicked: function() {
+			let editor = new NoteEditor(this);
+			editor.root.insertBefore(this.root);
+			this.hide();
+		},
+		hide: function() {
+			this.root.addClass("nat-hidden");
+		},
+		show: function() {
+			this.root.removeClass("nat-hidden");
+		}
+	};
+
 	var NotesUI = function(root, api_base_url) {
 		this._root = root
 		this._root.html("");
@@ -62,14 +120,10 @@ $(document).ready(function() {
 	NotesUI.prototype = {
 		_display: function(notes)
 		{
-		console.log(notes);
 			this._root.html("");
 			notes.forEach(note => {
-				let element = $("<div>", {'class': 'nat-note', 'data-id': note["id"]}).append(
-					$("<div>", {'class': 'nat-note-label', 'text': note["label"]}),
-					$("<div>", {'class': 'nat-note-body', 'text': note["body"]}),
-				);
-				this._root.append(element);
+				let widget = new NoteUI(note);
+				this._root.append(widget.root);
 			});
 		},
 		query: function(tags) {
