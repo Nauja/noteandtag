@@ -43,12 +43,22 @@ class Database():
         return None
 
     def update_note(self, id, data):
+        data = yaml.safe_load(yaml.safe_dump(data))
+
         for _ in self._notes:
             if _["id"] == id:
                 _.update(data)
-                return True
+                return _
 
         return False
+
+    def add_note(self, data):
+        id = max(int(_["id"]) for _ in self._notes) + 1
+        data["id"] = id
+        data = yaml.safe_load(yaml.safe_dump(data))
+        self._notes.append(data)
+
+        return data
 
     def load_notes(self):
         '''Load notes from external YAML file.

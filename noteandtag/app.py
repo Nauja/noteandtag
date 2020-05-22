@@ -69,6 +69,20 @@ def APINotesView(*, db: monad.Database) -> web.View:
                 )
             )
 
+        async def put(self):
+            data = await self.request.json()
+            note = db.add_note(data["data"])
+            if not note:
+                return web.HTTPInternalServerError()
+
+            db.save_notes()
+
+            return web.Response(
+                text=json.dumps(
+                    {"result": "Ok", "params": note}, ensure_ascii=False
+                )
+            )
+
     return Wrapper
 
 
@@ -102,14 +116,15 @@ def APINoteByIdView(*, db: monad.Database) -> web.View:
         async def post(self):
             id = int(self.request.match_info["id"])
             data = await self.request.json()
-            if not db.update_note(id, data["data"]):
+            note = db.update_note(id, data["data"])
+            if not note:
                 return web.HTTPNotFound()
 
             db.save_notes()
 
             return web.Response(
                 text=json.dumps(
-                    {"result": "Ok"}, ensure_ascii=False
+                    {"result": "Ok", "params": note}, ensure_ascii=False
                 )
             )
 

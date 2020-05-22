@@ -60,40 +60,58 @@ $(document).ready(function() {
 		}
 	};
 
-	var NoteEditor = function(note_ui) {
+	var NoteEditor = function(data, create) {
 		this.root = $("<div>", {'class': 'nat-note-editor'}).append(
 			$("<div>", {'class': 'nat-note-editor-body'}).append(
-				$("<textarea>", {'text': ''}),
+				$("<textarea>", {'text': '', 'rows': '6'}),
 				$("<div>", {'class': 'nat-note-editor-toolbar'}).append(
-					$("<input>", {'type': 'button', 'value': "Save"}),
+					$("<input>", {'type': 'button', 'class': 'nat-note-editor-save', 'value': "Save"}),
+					$("<input>", {'type': 'button', 'class': 'nat-note-editor-cancel', 'value': "Cancel"}),
 					$("<div>", {'style': 'clear: both;'})
 				)
 			)
 		);
-		this._note_ui = note_ui;
+		this._create = create;
+		this._cancelled = $.Callbacks();
+		this._saved = $.Callbacks();
 		this._widgets = {
 			textarea: this.root.find("textarea").first(),
-			save: this.root.find(".nat-note-editor-toolbar input").first()
+			cancel: this.root.find(".nat-note-editor-cancel").first(),
+			save: this.root.find(".nat-note-editor-save").first()
 		};
 		this._widgets.textarea.change(() => this._resize_textarea());
 		this._widgets.textarea.keyup(() => this._resize_textarea());
 		this._widgets.textarea.keydown(() => this._resize_textarea());
+		if (this._create === true) {
+			this._widgets.cancel.addClass("nat-hidden");
+			this._widgets.save.val("Add");
+		} else {
+			this._widgets.cancel.click(() => this._on_cancel_clicked());
+		}
 		this._widgets.save.click(() => this._on_save_clicked());
-		this._update_text();
+		this.update(data);
 	};
 	
 	NoteEditor.prototype = {
 		_on_save_clicked: function() {
-		    let data = jsyaml.load(this._widgets.textarea.val());
-		    data["id"] = this._note_ui.data["id"];
-		    console.log(data);
+		    let new_data = jsyaml.load(this._widgets.textarea.val());
+		    let type = null;
+		    let url = null;
+		    if (this._create) {
+		    	type = "PUT";
+		    	url = api_base_url + "notes";
+		    } else {
+		    	type = "POST";
+		    	new_data["id"] = this._data["id"];
+		    	url = api_base_url + "notes/" + new_data["id"];
+		    }
 
 			$.ajax({
-				url: api_base_url + "notes/" + data["id"],
-				type: "POST",
+				url: url,
+				type: type,
 				contentType: "application/json",
 				dataType: "json",
-				data: JSON.stringify({"data": data}),
+				data: JSON.stringify({"data": new_data}),
 				success: (response) => {
 					if (response["result"] != "Ok")
 					{
@@ -101,25 +119,42 @@ $(document).ready(function() {
 					}
 					else
 					{
-						this._note_ui.update(data);
-						this._on_saved();
+						new_data = response["params"];
+						this._saved.fire(new_data);
 					}
 				}
 			});
 		},
-		_on_saved: function() {
-			this.root.remove();
-			this._note_ui.show();
+		_on_cancel_clicked: function() {
+			this._cancelled.fire();
 		},
 		_resize_textarea: function() {
 			this._widgets.textarea.css("height", this._widgets.textarea.prop("scrollHeight")+'px');
 		},
-		_update_text: function() {
-			this._widgets.textarea.text(jsyaml.dump({
-				label: this._note_ui.data["label"],
-				body: this._note_ui.data["body"],
-				tags: this._note_ui.data["tags"],
-			}));
+		update: function(data) {
+			this._data = data;
+			if (data) {
+				this._widgets.textarea.text(jsyaml.dump({
+					label: data["label"],
+					body: data["body"],
+					tags: data["tags"],
+				}));
+			} else {
+				this._widgets.textarea.text(jsyaml.dump({
+					label: "template",
+					body: "write something here",
+					tags: [
+						"first tag",
+						"second tag"
+					],
+				}));
+			}
+		},
+		cancelled: function(cb) {
+			this._cancelled.add(cb);
+		},
+		saved: function(cb) {
+			this._saved.add(cb);
 		}
 	};
 
@@ -135,20 +170,19 @@ $(document).ready(function() {
 			),
 			$("<div>", {'class': 'nat-note-body', 'text': ''}),
 		);
+		this._edit = $.Callbacks();
 		this._widgets = {
 			label: this.root.find(".nat-note-label").first(),
 			body: this.root.find(".nat-note-body").first(),
 			edit: this.root.find(".nat-note-edit").first()
 		};
-		this._widgets.edit.click(() => this._on_edit_clicked());
+		this._widgets.edit.click(() => this._edit.fire());
 		this.update(data);
 	};
 	
 	NoteUI.prototype = {
-		_on_edit_clicked: function() {
-			let editor = new NoteEditor(this);
-			editor.root.insertBefore(this.root);
-			this.hide();
+		edit: function(cb) {
+			this._edit.add(cb);
 		},
 		hide: function() {
 			this.root.addClass("nat-hidden");
@@ -167,17 +201,51 @@ $(document).ready(function() {
 	var NotesUI = function(root, api_base_url) {
 		this._root = root
 		this._root.html("");
+		this._changed = $.Callbacks();
+		this._widgets = {
+			editor: new NoteEditor(null, true),
+			notes: []
+		};
+		this._widgets.editor.saved((data) => this._on_note_added(data));
+		this._root.append(this._widgets.editor.root);
 		this._api_base_url = api_base_url
 	};
 	
 	NotesUI.prototype = {
 		_display: function(notes)
 		{
-			this._root.html("");
-			notes.forEach(note => {
-				let widget = new NoteUI(note);
-				this._root.append(widget.root);
+			this._widgets.notes.forEach(note => {
+				note.root.remove();
 			});
+			this._widgets.notes = []
+			notes.forEach(data => this._on_note_added(data));
+		},
+		_on_edit: function(note) {
+			let editor = new NoteEditor(note.data);
+			editor.saved((data) => this._on_note_edited(note, editor, data));
+			editor.cancelled(() => this._on_edit_cancelled(note, editor));
+			editor.root.insertBefore(note.root);
+			note.hide();
+		},
+		_on_edit_cancelled: function(note, editor) {
+			editor.root.remove();
+			note.show();
+		},
+		_on_note_edited: function(note, editor, data) {
+			editor.root.remove();
+			note.update(data);
+			note.show();
+			this._changed.fire();
+		},
+		_on_note_added: function(data) {
+			let widget = new NoteUI(data);
+			widget.edit(() => this._on_edit(widget));
+			this._widgets.notes.push(widget);
+			widget.root.insertAfter(this._widgets.editor.root);
+			this._changed.fire();
+		},
+		changed: function(cb) {
+			this._changed.add(cb);
 		},
 		query: function(tags) {
 			let url = this._api_base_url + "notes/"
@@ -208,6 +276,7 @@ $(document).ready(function() {
 	let notes = new NotesUI($("#nat-notes"), api_base_url);
 	let tags = new TagsUI($("#nat-tags"), api_base_url);
 
+	notes.changed(() => tags.query());
 	tags.selection_changed((tags) => notes.query(tags));
 	tags.query();
 	notes.query();
