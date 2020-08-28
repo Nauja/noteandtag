@@ -141,8 +141,22 @@ def IndexView(*, api_base_url: str, cdn_url: str) -> web.View:
 
 
 def Application(
-    *args, db: str, jinja2_templates_dir: str, cdn_url: str, swagger_yml: str, swagger_url: str = None, api_base_url: str = None, base_url: str = None, **kwargs
+    *args, db: str, jinja2_templates_dir: str, cdn_url: str, swagger_yml: str, swagger_url: str = None, static_dir: str = None, api_base_url: str = None, base_url: str = None, **kwargs
 ):
+    """Create the server application.
+
+    :param args: additional args to **aiohttp**
+    :param db: path to local notes database
+    :param jinja2_templates_dir: directory containing jinja2 templates
+    :param cdn_url: URL for serving static files
+    :param swagger_yml:
+    :param swagger_url:
+    :param static_dir: directory containing static files
+    :param api_base_url:
+    :param base_url:
+    :param kargs: additional kargs to **aiohttp**
+    :return: application
+    """
     db = monad.Database(db)
     db.load_notes()
 
@@ -169,6 +183,9 @@ def Application(
             )
         },
     )
+
+    if static_dir is not None:
+        app.add_routes([web.static(cdn_url, static_dir)])
 
     # Web
     app.router.add_view(base_url, IndexView(api_base_url=api_base_url, cdn_url=cdn_url))

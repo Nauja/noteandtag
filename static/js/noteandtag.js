@@ -193,7 +193,8 @@ $(document).ready(function() {
 		update: function(data) {
 			this.root.attr("data-id", data["id"]);
 			this._widgets.label.html(data["label"]);
-			this._widgets.body.html(data["body"]);
+			var conv = new showdown.Converter()
+			this._widgets.body.html(conv.makeHtml(data["body"]));
 			this.data = data;
 		}
 	};

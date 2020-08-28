@@ -53,7 +53,7 @@ class Database():
         return False
 
     def add_note(self, data):
-        id = max(int(_["id"]) for _ in self._notes) + 1
+        id = (max(int(_["id"]) for _ in self._notes) + 1) if self._notes else 1
         data["id"] = id
         data = yaml.safe_load(yaml.safe_dump(data))
         self._notes.append(data)
@@ -65,9 +65,10 @@ class Database():
 
         :return: notes as JSON dicts
         '''
-        with open(self._filename, "rb") as f:
-            content = f.read().decode()
-            self._notes = list(yaml.safe_load_all(content))
+        if os.path.isfile(self._filename):
+            with open(self._filename, "rb") as f:
+                content = f.read().decode()
+                self._notes = list(yaml.safe_load_all(content))
 
         return self._notes
 

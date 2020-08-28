@@ -5,7 +5,8 @@ DEFAULT_CONFIG = {
         "port": 8080,
         "base-url": "/",
         "api-base-url": "/api/v1/",
-        "swagger-url": "/api/v1/doc"
+        "swagger-url": "/api/v1/doc",
+        "cdn-url": ""
     },
     "logging": {
         "access-logfile": "",

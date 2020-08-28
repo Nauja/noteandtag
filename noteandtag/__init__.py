@@ -47,11 +47,12 @@ def setup_logging(
         )
 
 
-def run(*, db: str, jinja2_templates_dir: str, cdn_url:str, swagger_yml: str, swagger_url: str, api_base_url: str, base_url: str, port: int):
+def run(*, db: str, jinja2_templates_dir: str, cdn_url:str, static_dir: str, swagger_yml: str, swagger_url: str, api_base_url: str, base_url: str, port: int):
     app = Application(
         db=db,
         jinja2_templates_dir=jinja2_templates_dir,
         cdn_url=cdn_url,
+        static_dir=static_dir,
         swagger_yml=swagger_yml, swagger_url=swagger_url, api_base_url=api_base_url, base_url=base_url
     )
     web.run_app(app, port=port)
@@ -84,6 +85,7 @@ def main(argv=None):
         db=config["service"]["db"],
         jinja2_templates_dir=config["service"]["jinja2-templates-dir"],
         cdn_url=config["service"]["cdn-url"],
+        static_dir=config["service"].get("static-dir", None),
         swagger_yml=config["service"]["swagger-yml"],
         swagger_url=config["service"]["swagger-url"],
         api_base_url=config["service"]["api-base-url"],
