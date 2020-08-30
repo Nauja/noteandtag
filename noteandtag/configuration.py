@@ -6,7 +6,8 @@ DEFAULT_CONFIG = {
         "base-url": "/",
         "api-base-url": "/api/v1/",
         "swagger-url": "/api/v1/doc",
-        "cdn-url": ""
+        "cdn-url": "",
+        "db": "notes.yml"
     },
     "logging": {
         "access-logfile": "",

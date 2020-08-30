@@ -4,6 +4,7 @@ sample/
 *.bat
 .settings
 etc/static
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

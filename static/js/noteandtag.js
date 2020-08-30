@@ -63,7 +63,7 @@ $(document).ready(function() {
 	var NoteEditor = function(data, create) {
 		this.root = $("<div>", {'class': 'nat-note-editor'}).append(
 			$("<div>", {'class': 'nat-note-editor-body'}).append(
-				$("<textarea>", {'text': '', 'rows': '6'}),
+				$("<textarea>", {'text': '', 'rows': '8'}),
 				$("<div>", {'class': 'nat-note-editor-toolbar'}).append(
 					$("<input>", {'type': 'button', 'class': 'nat-note-editor-save', 'value': "Save"}),
 					$("<input>", {'type': 'button', 'class': 'nat-note-editor-cancel', 'value': "Cancel"}),
@@ -94,7 +94,10 @@ $(document).ready(function() {
 	
 	NoteEditor.prototype = {
 		_on_save_clicked: function() {
-		    let new_data = jsyaml.load(this._widgets.textarea.val());
+			let parts = this._widgets.textarea.val().split("---\n")
+			let new_data = jsyaml.load(parts[0]);
+			new_data["body"] = parts[1];
+			console.log(new_data);
 		    let type = null;
 		    let url = null;
 		    if (this._create) {
@@ -136,18 +139,20 @@ $(document).ready(function() {
 			if (data) {
 				this._widgets.textarea.text(jsyaml.dump({
 					label: data["label"],
-					body: data["body"],
+					author: data["author"],
 					tags: data["tags"],
-				}));
+				}) + "---\n" + data["body"]);
 			} else {
-				this._widgets.textarea.text(jsyaml.dump({
-					label: "template",
-					body: "write something here",
-					tags: [
-						"first tag",
-						"second tag"
-					],
-				}));
+				this._widgets.textarea.text(
+					jsyaml.dump({
+						label: "template",
+						author: "john",
+						tags: [
+							"first tag",
+							"second tag"
+						],
+					}) + "---\nwrite note body here"
+				);
 			}
 		},
 		cancelled: function(cb) {
@@ -193,7 +198,7 @@ $(document).ready(function() {
 		update: function(data) {
 			this.root.attr("data-id", data["id"]);
 			this._widgets.label.html(data["label"]);
-			var conv = new showdown.Converter()
+			var conv = new showdown.Converter();
 			this._widgets.body.html(conv.makeHtml(data["body"]));
 			this.data = data;
 		}
