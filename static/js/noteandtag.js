@@ -94,10 +94,27 @@ $(document).ready(function() {
 	
 	NoteEditor.prototype = {
 		_on_save_clicked: function() {
-			let parts = this._widgets.textarea.val().split("---\n")
-			let new_data = jsyaml.load(parts[0]);
+			// Split yaml part and body part
+			let parts = this._widgets.textarea.val().split("---\n");
+			if (parts.length != 2)
+			{
+				this._show_error(true);
+				return;
+			}
+
+			// Validate yaml part
+			let new_data = {};
+			try {
+				new_data = jsyaml.load(parts[0]);
+			} catch(error) {
+				this._show_error(true);
+				console.error(error);
+				return;
+			}
+
+			// Send request
+			this._show_error(false);
 			new_data["body"] = parts[1];
-			console.log(new_data);
 		    let type = null;
 		    let url = null;
 		    if (this._create) {
@@ -133,6 +150,14 @@ $(document).ready(function() {
 		},
 		_resize_textarea: function() {
 			this._widgets.textarea.css("height", this._widgets.textarea.prop("scrollHeight")+'px');
+		},
+		_show_error: function(val) {
+			if (val) {
+				this.root.addClass("nat-error");
+				this.root.effect("shake");
+			} else {
+				this.root.removeClass("nat-error");
+			}
 		},
 		update: function(data) {
 			this._data = data;
@@ -199,6 +224,7 @@ $(document).ready(function() {
 			this.root.attr("data-id", data["id"]);
 			this._widgets.label.html(data["label"]);
 			var conv = new showdown.Converter();
+			conv.setFlavor('github');
 			this._widgets.body.html(conv.makeHtml(data["body"]));
 			this.data = data;
 		}

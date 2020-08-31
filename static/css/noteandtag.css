@@ -15,7 +15,7 @@ body {
   font-size: 14px;
 }
 
-h1 {
+.nat-h1 {
   font-family: "Segoe UI";
   font-size: 40pt;
   color: #fff;
@@ -189,6 +189,10 @@ h1 {
 	margin-bottom: 0.5em;
 }
 
+.nat-note-editor.nat-error .nat-note-editor-body {
+    background-color: #cc7079;
+}
+
 .nat-note-editor-toolbar input {
 	float: right;
 	display: block;
@@ -198,7 +202,7 @@ h1 {
 }
 
 @media (max-width: 575px) {
-	h1 {
+	.nat-h1 {
   		font-size: 32pt;
 		margin-bottom: 0.5em;
 	}
