@@ -63,7 +63,11 @@ $(document).ready(function() {
 	var NoteEditor = function(data, create) {
 		this.root = $("<div>", {'class': 'nat-note-editor'}).append(
 			$("<div>", {'class': 'nat-note-editor-body'}).append(
-				$("<textarea>", {'text': '', 'rows': '8'}),
+				$("<form>", {}).append(
+					$("<input>", {'class': 'nat-note-editor-form-label', 'text': '', 'placeholder': 'Add a title...'}),
+					$("<input>", {'class': 'nat-note-editor-form-author', 'text': '', 'placeholder': 'Add an author...'}),
+					$("<textarea>", {'class': 'nat-note-editor-form-body', 'text': '', 'rows': '5', 'placeholder': 'Write note body here...'})
+				),
 				$("<div>", {'class': 'nat-note-editor-toolbar'}).append(
 					$("<input>", {'type': 'button', 'class': 'nat-note-editor-save', 'value': "Save"}),
 					$("<input>", {'type': 'button', 'class': 'nat-note-editor-cancel', 'value': "Cancel"}),
@@ -75,13 +79,17 @@ $(document).ready(function() {
 		this._cancelled = $.Callbacks();
 		this._saved = $.Callbacks();
 		this._widgets = {
-			textarea: this.root.find("textarea").first(),
+			form: {
+				label: this.root.find(".nat-note-editor-form-label").first(),
+				author: this.root.find(".nat-note-editor-form-author").first(),
+				body: this.root.find(".nat-note-editor-form-body").first()
+			},
 			cancel: this.root.find(".nat-note-editor-cancel").first(),
 			save: this.root.find(".nat-note-editor-save").first()
 		};
-		this._widgets.textarea.change(() => this._resize_textarea());
-		this._widgets.textarea.keyup(() => this._resize_textarea());
-		this._widgets.textarea.keydown(() => this._resize_textarea());
+		this._widgets.form.body.change(() => this._resize_textarea());
+		this._widgets.form.body.keyup(() => this._resize_textarea());
+		this._widgets.form.body.keydown(() => this._resize_textarea());
 		if (this._create === true) {
 			this._widgets.cancel.addClass("nat-hidden");
 			this._widgets.save.val("Add");
@@ -149,7 +157,7 @@ $(document).ready(function() {
 			this._cancelled.fire();
 		},
 		_resize_textarea: function() {
-			this._widgets.textarea.css("height", this._widgets.textarea.prop("scrollHeight")+'px');
+			this._widgets.form.body.css("height", this._widgets.form.body.prop("scrollHeight")+'px');
 		},
 		_show_error: function(val) {
 			if (val) {
@@ -162,22 +170,14 @@ $(document).ready(function() {
 		update: function(data) {
 			this._data = data;
 			if (data) {
-				this._widgets.textarea.text(jsyaml.dump({
-					label: data["label"],
-					author: data["author"],
-					tags: data["tags"],
-				}) + "---\n" + data["body"]);
+				console.log(data);
+				this._widgets.form.body.text(data["body"]);
+				this._widgets.form.label.val(data["label"]);
+				this._widgets.form.author.val(data["author"]);
 			} else {
-				this._widgets.textarea.text(
-					jsyaml.dump({
-						label: "template",
-						author: "john",
-						tags: [
-							"first tag",
-							"second tag"
-						],
-					}) + "---\nwrite note body here"
-				);
+				this._widgets.form.body.text("");
+				this._widgets.form.label.val("");
+				this._widgets.form.author.val("");
 			}
 		},
 		cancelled: function(cb) {
