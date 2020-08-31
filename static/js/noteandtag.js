@@ -102,27 +102,13 @@ $(document).ready(function() {
 	
 	NoteEditor.prototype = {
 		_on_save_clicked: function() {
-			// Split yaml part and body part
-			let parts = this._widgets.textarea.val().split("---\n");
-			if (parts.length != 2)
-			{
-				this._show_error(true);
-				return;
-			}
+			let new_data = {
+				"label": this._widgets.form.label.val(),
+				"author": this._widgets.form.author.val(),
+				"body": this._widgets.form.body.val(),
+				"tags": []
+			};
 
-			// Validate yaml part
-			let new_data = {};
-			try {
-				new_data = jsyaml.load(parts[0]);
-			} catch(error) {
-				this._show_error(true);
-				console.error(error);
-				return;
-			}
-
-			// Send request
-			this._show_error(false);
-			new_data["body"] = parts[1];
 		    let type = null;
 		    let url = null;
 		    if (this._create) {
