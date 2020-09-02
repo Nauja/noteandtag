@@ -137,12 +137,46 @@ body {
     border-left: 1px solid white;
     border-right: 1px solid rgba(0, 0, 0, 0.6);
     border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    line-height: 2em;
+}
+
+.nat-note-tags {
+    background-color: #cccccc;
+    border-top: 1px solid white;
+    border-left: 1px solid white;
+    border-right: 1px solid rgba(0, 0, 0, 0.6);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.6);
     border-radius: 5px;
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
     padding-left: 0.7em;
     padding-right: 0.7em;
-    line-height: 2em;
+    padding-bottom: 0.5em;
+    padding-top: 0.3em;
+}
+
+.nat-note-tag {
+	color: white;
+	text-decoration: none;
+	display: inline-block;
+    line-height: 1.25em;
+    background-color: #52794a;
+    border-top: 1px solid #95c38d;
+    border-left: 1px solid #95c38d;
+    border-right: 1px solid #20351c;
+    border-bottom: 1px solid #20351c;
+    border-radius: 6px;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    padding-bottom: 0.1em;
+    box-shadow: 0 1px 0 rgba(27,31,35,.1), inset 0 1px 0 hsla(0,0%,100%,.03);
+    border-color: rgba(27,31,35,.15);
+}
+
+.nat-note-tag + .nat-note-tag {
+	margin-left: 5px;
 }
 
 .nat-note-editor {

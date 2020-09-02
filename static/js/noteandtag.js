@@ -156,7 +156,6 @@ $(document).ready(function() {
 		update: function(data) {
 			this._data = data;
 			if (data) {
-				console.log(data);
 				this._widgets.form.body.text(data["body"]);
 				this._widgets.form.label.val(data["label"]);
 				this._widgets.form.author.val(data["author"]);
@@ -185,11 +184,13 @@ $(document).ready(function() {
 				)
 			),
 			$("<div>", {'class': 'nat-note-body', 'text': ''}),
+			$("<div>", {'class': 'nat-note-tags'})
 		);
 		this._edit = $.Callbacks();
 		this._widgets = {
 			label: this.root.find(".nat-note-label").first(),
 			body: this.root.find(".nat-note-body").first(),
+			tags: this.root.find(".nat-note-tags").first(),
 			edit: this.root.find(".nat-note-edit").first()
 		};
 		this._widgets.edit.click(() => this._edit.fire());
@@ -206,12 +207,20 @@ $(document).ready(function() {
 		show: function() {
 			this.root.removeClass("nat-hidden");
 		},
+		_update_tags: function(tags) {
+			this._widgets.tags.html("");
+			console.log(tags);
+			tags.forEach(tag => {
+				this._widgets.tags.append($("<span>", {'class': 'nat-note-tag', 'text': tag}));
+			});
+		},
 		update: function(data) {
 			this.root.attr("data-id", data["id"]);
 			this._widgets.label.html(data["label"]);
 			var conv = new showdown.Converter();
 			conv.setFlavor('github');
 			this._widgets.body.html(conv.makeHtml(data["body"]));
+			this._update_tags(data["tags"]);
 			this.data = data;
 		}
 	};
@@ -267,7 +276,6 @@ $(document).ready(function() {
 		},
 		query: function(tags) {
 			let url = this._api_base_url + "notes/"
-			console.log(tags);
 			if (tags !== undefined) {
 				url += tags.join(":");
 			}
