@@ -94,6 +94,7 @@ body {
 }
 
 .nat-note-head {
+    color: #fff;
     background-color: #52794a;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     border-left: 1px solid rgba(255, 255, 255, 0.2);
@@ -104,7 +105,8 @@ body {
     border-bottom-right-radius: 0px;
     padding-left: 0.7em;
     padding-right: 0.7em;
-    line-height: 2em;
+    padding-top: 0.2em;
+    padding-bottom: 0.5em;
     width: 100%;
 }
 
@@ -157,7 +159,7 @@ body {
     padding-top: 0.3em;
 }
 
-.nat-note-tag {
+.nat-note-tag, .nat-note-editor-form-tag {
 	color: white;
 	text-decoration: none;
 	display: inline-block;
@@ -175,8 +177,17 @@ body {
     border-color: rgba(27,31,35,.15);
 }
 
-.nat-note-tag + .nat-note-tag {
-	margin-left: 5px;
+.nat-note-editor-form-tag {
+    background-color: #784a4a;
+    border-top: 1px solid #c38e8d;
+    border-left: 1px solid #c38e8d;
+    border-right: 1px solid #351c1c;
+    border-bottom: 1px solid #351c1c;
+    border-color: rgba(27,31,35,.15);
+}
+
+.nat-note-tag + .nat-note-tag, .nat-note-editor-form-tag + .nat-note-editor-form-tag {
+    margin-left: 0.5em;
 }
 
 .nat-note-editor {
@@ -216,31 +227,37 @@ body {
     padding-right: 0.7em;
 }
 
-.nat-note-editor-body form {
+.nat-form {
 	width: 100%;
-	margin-top: 0.25em;
-	margin-bottom: 0.25em;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
 }
 
-.nat-note-editor-body form textarea {
+.nat-form-input, .nat-form-textarea, .nat-form-taginput {
+    border-color: rgb(31 34 37 / 32%);
+    box-shadow: 0 1px 0 rgba(27,31,35,.1), inset 0 1px 0 hsla(0,0%,100%,.03);
+    border-radius: 6px;
+}
+
+.nat-form-input, .nat-form-textarea {
 	width: 100%;
+    padding: 5px;
+}
+
+.nat-form-textarea {
 	height: 100%;
-	margin-top: 0.25em;
-    margin-bottom: 0.25em;
-    border-color: rgb(31 34 37 / 32%);
-    box-shadow: 0 1px 0 rgba(27,31,35,.1), inset 0 1px 0 hsla(0,0%,100%,.03);
-    border-radius: 6px;
-    padding: 5px;
 }
 
-.nat-note-editor-body form input {
-	width: 100%;
-	margin-top: 0.25em;
-    margin-bottom: 0.25em;
-    border-color: rgb(31 34 37 / 32%);
-    box-shadow: 0 1px 0 rgba(27,31,35,.1), inset 0 1px 0 hsla(0,0%,100%,.03);
-    border-radius: 6px;
-    padding: 5px;
+.nat-form-taginput {
+    width: 5em;
+}
+
+.nat-note-editor-form-tag + .nat-form-taginput {
+    margin-left: 0.5em;
+}
+
+.nat-form-line + .nat-form-line {
+    margin-top: 0.5em;
 }
 
 .nat-note-editor.nat-error .nat-note-editor-body {

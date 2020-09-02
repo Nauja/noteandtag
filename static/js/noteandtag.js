@@ -63,10 +63,13 @@ $(document).ready(function() {
 	var NoteEditor = function(data, create) {
 		this.root = $("<div>", {'class': 'nat-note-editor'}).append(
 			$("<div>", {'class': 'nat-note-editor-body'}).append(
-				$("<form>", {}).append(
-					$("<input>", {'class': 'nat-note-editor-form-label', 'text': '', 'placeholder': 'Add a title...'}),
-					$("<input>", {'class': 'nat-note-editor-form-author', 'text': '', 'placeholder': 'Add an author...'}),
-					$("<textarea>", {'class': 'nat-note-editor-form-body', 'text': '', 'rows': '5', 'placeholder': 'Write note body here...'})
+				$("<form>", {'class': 'nat-form'}).append(
+					$("<input>", {'class': 'nat-note-editor-form-label nat-form-input nat-form-line', 'text': '', 'placeholder': 'Add a title...'}),
+					$("<input>", {'class': 'nat-note-editor-form-author nat-form-input nat-form-line', 'text': '', 'placeholder': 'Add an author...'}),
+					$("<div>", {'class': 'nat-note-editor-form-tags nat-form-line'}).append(
+						$("<input>", {'class': 'nat-note-editor-form-newtag nat-form-taginput', 'text': '', 'placeholder': 'tag'})
+					),
+					$("<textarea>", {'class': 'nat-note-editor-form-body nat-form-textarea nat-form-line', 'text': '', 'rows': '5', 'placeholder': 'Write note body here...'})
 				),
 				$("<div>", {'class': 'nat-note-editor-toolbar'}).append(
 					$("<input>", {'type': 'button', 'class': 'nat-note-editor-save', 'value': "Save"}),
@@ -75,6 +78,7 @@ $(document).ready(function() {
 				)
 			)
 		);
+		this._tags = [];
 		this._create = create;
 		this._cancelled = $.Callbacks();
 		this._saved = $.Callbacks();
@@ -82,11 +86,16 @@ $(document).ready(function() {
 			form: {
 				label: this.root.find(".nat-note-editor-form-label").first(),
 				author: this.root.find(".nat-note-editor-form-author").first(),
+				tags: this.root.find(".nat-note-editor-form-tags").first(),
+				newtag: this.root.find(".nat-note-editor-form-newtag").first(),
 				body: this.root.find(".nat-note-editor-form-body").first()
 			},
 			cancel: this.root.find(".nat-note-editor-cancel").first(),
 			save: this.root.find(".nat-note-editor-save").first()
 		};
+		this._widgets.form.newtag.change(() => this._check_newtag());
+		this._widgets.form.newtag.keyup(() => this._check_newtag());
+		this._widgets.form.newtag.keydown(() => this._check_newtag());
 		this._widgets.form.body.change(() => this._resize_textarea());
 		this._widgets.form.body.keyup(() => this._resize_textarea());
 		this._widgets.form.body.keydown(() => this._resize_textarea());
@@ -101,12 +110,15 @@ $(document).ready(function() {
 	};
 	
 	NoteEditor.prototype = {
+		/**
+		* Called when user clicked on save button.
+		*/
 		_on_save_clicked: function() {
 			let new_data = {
 				"label": this._widgets.form.label.val(),
 				"author": this._widgets.form.author.val(),
 				"body": this._widgets.form.body.val(),
-				"tags": []
+				"tags": this._tags
 			};
 
 		    let type = null;
@@ -139,35 +151,102 @@ $(document).ready(function() {
 				}
 			});
 		},
+		/**
+		* Called when user clicked on cancel button.
+		*/
 		_on_cancel_clicked: function() {
 			this._cancelled.fire();
+		},
+		/**
+		* Detect when user input a new tag by typing a whitespace.
+		*/
+		_check_newtag: function() {
+			// no whitespace = no tag
+			let newtag = this._widgets.form.newtag.val();
+			if (newtag.indexOf(' ') < 0)
+			{
+				return;
+			}
+
+			// split by whitespace in case of copy paste
+			let parts = newtag.trim().split(' ');
+			parts.forEach(tag => {
+				if (tag != '')
+				{
+					this._add_tag(tag);
+				}
+			});
+
+			// clear input
+			this._widgets.form.newtag.val("");
+		},
+		/**
+		* Add a new tag to the list and UI.
+		* @param  {String} tag Tag text
+		*/
+		_add_tag: function(tag) {
+			// add a new tag to this note, prevent double tags
+			if (!this._tags.includes(tag))
+			{
+				let tag_widget = $("<button>", {'class': 'nat-note-editor-form-tag', 'text': tag});
+				this._widgets.form.newtag.before(tag_widget);
+				this._tags.push(tag);
+				// allow removing tag from list
+				tag_widget.click(() => this._remove_tag(tag_widget, tag));
+			}
+		},
+		/**
+		* Remove a tag from list and UI.
+		* @param  {String} widget Tag widget
+		* @param  {String} tag Tag text
+		*/
+		_remove_tag: function(widget, tag) {
+			widget.remove();
+			let pos = this._tags.indexOf(tag);
+			if (pos >= 0)
+			{
+				this._tags.splice(pos, 1);
+			}
 		},
 		_resize_textarea: function() {
 			this._widgets.form.body.css("height", this._widgets.form.body.prop("scrollHeight")+'px');
 		},
-		_show_error: function(val) {
-			if (val) {
-				this.root.addClass("nat-error");
-				this.root.effect("shake");
-			} else {
-				this.root.removeClass("nat-error");
-			}
-		},
+		/**
+		* Update form based on received note data.
+		* @param  {Dict} data Note data as JSON dict
+		*/
 		update: function(data) {
 			this._data = data;
 			if (data) {
+				// clear old tags and add new ones
+				this._tags = [];
+				this._widgets.form.tags.find(".nat-note-editor-form-tag").remove();
+				data["tags"].forEach(tag => {
+					this._add_tag(tag);
+				});
+				// update form inputs
 				this._widgets.form.body.text(data["body"]);
 				this._widgets.form.label.val(data["label"]);
 				this._widgets.form.author.val(data["author"]);
 			} else {
+				// empty form
+				this._tags = [];
 				this._widgets.form.body.text("");
 				this._widgets.form.label.val("");
 				this._widgets.form.author.val("");
 			}
 		},
+		/**
+		* Register a callback for when user click on cancel button.
+		* @param  {Function} cb Callback
+		*/
 		cancelled: function(cb) {
 			this._cancelled.add(cb);
 		},
+		/**
+		* Register a callback for when user click on save button.
+		* @param  {Function} cb Callback
+		*/
 		saved: function(cb) {
 			this._saved.add(cb);
 		}
@@ -209,7 +288,6 @@ $(document).ready(function() {
 		},
 		_update_tags: function(tags) {
 			this._widgets.tags.html("");
-			console.log(tags);
 			tags.forEach(tag => {
 				this._widgets.tags.append($("<span>", {'class': 'nat-note-tag', 'text': tag}));
 			});
