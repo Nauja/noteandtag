@@ -42,18 +42,34 @@ def setup_logging(
     if error_logfile:
         logging.getLogger("aiohttp.server").addHandler(
             RotatingFileHandler(
-                error_logfile, maxBytes=error_maxbytes, backupCount=error_backupcount,
+                error_logfile,
+                maxBytes=error_maxbytes,
+                backupCount=error_backupcount,
             )
         )
 
 
-def run(*, db: str, jinja2_templates_dir: str, cdn_url:str, static_dir: str, swagger_yml: str, swagger_url: str, api_base_url: str, base_url: str, port: int):
+def run(
+    *,
+    db: str,
+    jinja2_templates_dir: str,
+    cdn_url: str,
+    static_dir: str,
+    swagger_yml: str,
+    swagger_url: str,
+    api_base_url: str,
+    base_url: str,
+    port: int
+):
     app = Application(
         db=db,
         jinja2_templates_dir=jinja2_templates_dir,
         cdn_url=cdn_url,
         static_dir=static_dir,
-        swagger_yml=swagger_yml, swagger_url=swagger_url, api_base_url=api_base_url, base_url=base_url
+        swagger_yml=swagger_yml,
+        swagger_url=swagger_url,
+        api_base_url=api_base_url,
+        base_url=base_url,
     )
     web.run_app(app, port=port)
 
@@ -86,11 +102,11 @@ def main(argv=None):
         jinja2_templates_dir=config["service"]["jinja2-templates-dir"],
         cdn_url=config["service"]["cdn-url"],
         static_dir=config["service"].get("static-dir", None),
-        swagger_yml=config["service"]["swagger-yml"],
-        swagger_url=config["service"]["swagger-url"],
+        swagger_yml=config["service"].get("swagger-yml", None),
+        swagger_url=config["service"].get("swagger-url", None),
         api_base_url=config["service"]["api-base-url"],
         base_url=config["service"]["base-url"],
-        port=int(config["service"]["port"])
+        port=int(config["service"]["port"]),
     )
 
 

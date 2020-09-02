@@ -5,9 +5,8 @@ DEFAULT_CONFIG = {
         "port": 8080,
         "base-url": "/",
         "api-base-url": "/api/v1/",
-        "swagger-url": "/api/v1/doc",
         "cdn-url": "",
-        "db": "notes.yml"
+        "db": "notes.yml",
     },
     "logging": {
         "access-logfile": "",
@@ -16,7 +15,7 @@ DEFAULT_CONFIG = {
         "error-logfile": "",
         "error-maxbytes": DEFAULT_LOGGING_MAXBYTES,
         "error-backupcount": DEFAULT_LOGGING_BACKUPCOUNT,
-    }
+    },
 }
 
 

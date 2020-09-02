@@ -5,7 +5,7 @@ import os
 import tempfile
 
 
-class Database():
+class Database:
     def __init__(self, filename: str):
         self._filename = filename
         self._notes = []
@@ -20,10 +20,7 @@ class Database():
             for _ in note["tags"]:
                 d[_] = d.get(_, 0) + 1
 
-        return [{
-            "name": tag,
-            "total": total
-        } for tag, total in d.items()]
+        return [{"name": tag, "total": total} for tag, total in d.items()]
 
     def get_notes_by_tags(self, tags):
         def matches(note):
@@ -61,10 +58,10 @@ class Database():
         return data
 
     def load_notes(self):
-        '''Load notes from external YAML file.
+        """Load notes from external YAML file.
 
         :return: notes as JSON dicts
-        '''
+        """
         if os.path.isfile(self._filename):
             with open(self._filename, "rb") as f:
                 content = f.read().decode()
@@ -73,8 +70,7 @@ class Database():
         return self._notes
 
     def save_notes(self):
-        '''Save notes to external YAML file.
-        '''
+        """Save notes to external YAML file."""
         tmp = tempfile.NamedTemporaryFile(mode="w+b", delete=False)
         try:
             content = yaml.safe_dump_all(self._notes, allow_unicode=True).encode()

@@ -15,10 +15,14 @@ class ServiceTestCase(AioHTTPTestCase):
         config = configuration.load(CONFIG_CNF)
 
         return Application(
-            swagger_yml=config["service"]["swagger-yml"],
-            swagger_url=config["service"]["swagger-url"],
-            base_url=config["service"]["base-url"],
-            db=db,
+            db=config["service"]["db"],
+            jinja2_templates_dir=config["service"]["jinja2-templates-dir"],
+            cdn_url=config["service"]["cdn-url"],
+            static_dir=config["service"].get("static-dir", None),
+            swagger_yml=config["service"].get("swagger-yml", None),
+            swagger_url=config["service"].get("swagger-url", None),
+            api_base_url=config["service"]["api-base-url"],
+            base_url=config["service"]["base-url"]
         )
 
     @unittest_run_loop
