@@ -44,23 +44,23 @@ You can run the service as:
 python -m noteandtag {config_directory}
 ```
 
-Where `config_directory` must be the path to a directory containing the [`config.cnf`](https://github.com/Nauja/noteandtag/blob/master/etc/config.cnf) configuration file.
+Where `config_directory` must be the path to your directory containing the [`config.cnf`](https://github.com/Nauja/noteandtag/blob/master/etc/config.cnf) configuration file.
 
-If you are running the service from this repository directory, a valid configuration would be:
+To quick start using NoteAndTag, you can download this repository and run:
+
+```bash
+python -m noteandtag etc
+```
+
+You should see:
+
+```bash
+======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
 
 ```
-[service]
-port = 8080
-base-url = /
-api-base-url = /api/v1/
-cdn-url = /static
-static-dir = static
-default-theme = monokaiorange
-jinja2-templates-dir = etc/templates
-swagger-yml = etc/swagger.yml
-swagger-url = /api/v1/doc
-db = etc/db.yml
-```
+
+You can now go to `http://localhost:8080` and start using NoteAndTag.
 
 ## Running with Docker
 
