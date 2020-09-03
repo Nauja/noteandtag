@@ -112,7 +112,23 @@ Where:
   * **/path/to/log**: is the path to the directory where you wan't to store logs.
   * **8080**: is the public port to access the service.
 
-You should see:
+As the Docker image exposes `/etc/service`, your typical `config.cnf` configuration file would be:
+
+```
+[service]
+port = 8080
+base-url = /
+api-base-url = /api/v1/
+cdn-url = /static
+static-dir = /etc/service/static
+jinja2-templates-dir = /etc/service/templates
+default-theme = monokaiorange
+swagger-yml = /etc/service/swagger.yml
+swagger-url = /api/v1/doc
+db = /etc/service/db.yml
+```
+
+You should now see:
 
 ```bash
 ======== Running on http://0.0.0.0:8080 ========
