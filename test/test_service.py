@@ -16,6 +16,7 @@ class ServiceTestCase(AioHTTPTestCase):
 
         return Application(
             db=config["service"]["db"],
+            default_theme=config["service"]["default-theme"],
             jinja2_templates_dir=config["service"]["jinja2-templates-dir"],
             cdn_url=config["service"]["cdn-url"],
             static_dir=config["service"].get("static-dir", None),

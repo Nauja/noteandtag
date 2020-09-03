@@ -4,6 +4,7 @@ base-url = /
 api-base-url = /api/v1/
 cdn-url = /static
 static-dir = static
+default-theme = monokaiorange
 jinja2-templates-dir = etc/templates
 swagger-yml = etc/swagger.yml
 swagger-url = /api/v1/doc
