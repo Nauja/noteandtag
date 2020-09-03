@@ -50,6 +50,35 @@ To quick start using *NoteAndTag*, you can download this repository and run:
 python -m noteandtag etc
 ```
 
+The default [`etc/config.cnf`](https://github.com/Nauja/noteandtag/blob/master/etc/config.cnf) configuration file looks like this:
+
+```
+[service]
+port = 8080
+base-url = /
+api-base-url = /api/v1/
+cdn-url = /static
+static-dir = /etc/service/static
+default-theme = monokaiorange
+jinja2-templates-dir = /etc/service/templates
+swagger-yml = /etc/service/swagger.yml
+swagger-url = /api/v1/doc
+db = /etc/service/db.yml
+```
+
+Where:
+
+  * **port**: is the public port to access the service.
+  * **base-url**: is the base URL to access the index page.
+  * **api-base-url**: is the base URL to access the REST API.
+  * **cdn-url**: is an optional URL to serve static JS and CSS files.
+  * **static-dir**: is the path to local static JS and CSS files.
+  * **default-theme**: is the default theme users will see.
+  * **jinja2-templates-dir**: is the path to local Jinja2 templates files.
+  * **swagger-yml**: is the path to local Swagger description file.
+  * **swagger-url**: is the base URL to access Swagger documentation.
+  * **db**: is the file where notes will be saved.
+
 You should see:
 
 ```bash
