@@ -81,7 +81,7 @@ To quick start using *NoteAndTag*\ , you can download this repository and run:
 
    python -m noteandtag etc
 
-The default `\ ``etc/config.cnf`` <https://github.com/Nauja/noteandtag/blob/master/etc/config.cnf>`_ configuration file looks like this:
+The default `etc/config.cnf <https://github.com/Nauja/noteandtag/blob/master/etc/config.cnf>`_ configuration file looks like this:
 
 .. code-block::
 
