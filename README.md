@@ -44,9 +44,8 @@ You can run the service as:
 python -m noteandtag {config_directory}
 ```
 
-Where `config_directory` must be the path to your directory containing the [`config.cnf`](https://github.com/Nauja/noteandtag/blob/master/etc/config.cnf) configuration file.
-
-To quick start using NoteAndTag, you can download this repository and run:
+Where `config_directory` must be the path to a directory containing the [`config.cnf`](https://github.com/Nauja/noteandtag/blob/master/etc/config.cnf) configuration file. To quick start
+using NoteAndTag, you can download this repository and run:
 
 ```bash
 python -m noteandtag etc
