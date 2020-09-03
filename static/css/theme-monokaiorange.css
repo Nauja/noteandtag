@@ -1,0 +1,15 @@
+body {
+    background-color: #272822;
+}
+
+.nat-note-head {
+    color: #000;
+    background-color: #fd971f;
+}
+
+.nat-note-tag, .nat-note-editor-form-tag {
+	color: #000;
+    background-color: #f8f8f2;
+    border-top: 1px solid;
+    border-color: rgba(27,31,35,.15);
+}

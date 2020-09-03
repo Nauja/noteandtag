@@ -6,6 +6,7 @@ DEFAULT_CONFIG = {
         "base-url": "/",
         "api-base-url": "/api/v1/",
         "cdn-url": "",
+        "default-theme": "default",
         "db": "notes.yml",
     },
     "logging": {

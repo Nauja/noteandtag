@@ -86,11 +86,15 @@ def APINoteByIdView(*, db: monad.Database) -> web.View:
     return Wrapper
 
 
-def IndexView(*, api_base_url: str, cdn_url: str) -> web.View:
+def IndexView(*, api_base_url: str, cdn_url: str, default_theme: str) -> web.View:
     class Wrapper(web.View):
         @aiohttp_jinja2.template("index.html")
         async def get(self, **_):
-            return {"api_base_url": api_base_url, "cdn_url": cdn_url}
+            return {
+                "api_base_url": api_base_url,
+                "cdn_url": cdn_url,
+                "theme": self.request.rel_url.query.get("theme", default_theme)
+            }
 
     return Wrapper
 
@@ -100,6 +104,7 @@ def Application(
     db: str,
     jinja2_templates_dir: str,
     cdn_url: str,
+    default_theme: str,
     swagger_yml: str = None,
     swagger_url: str = None,
     static_dir: str = None,
@@ -113,6 +118,7 @@ def Application(
     :param db: path to local notes database
     :param jinja2_templates_dir: directory containing jinja2 templates
     :param cdn_url: URL for serving static files
+    :param default_theme: default selected CSS theme
     :param swagger_yml:
     :param swagger_url:
     :param static_dir: directory containing static files
@@ -151,7 +157,11 @@ def Application(
         app.add_routes([web.static(cdn_url, static_dir)])
 
     # Web
-    app.router.add_view(base_url, IndexView(api_base_url=api_base_url, cdn_url=cdn_url))
+    app.router.add_view(base_url, IndexView(
+        api_base_url=api_base_url,
+        cdn_url=cdn_url,
+        default_theme=default_theme
+    ))
 
     # API
     cors.add(app.router.add_view(api_base_url + "tags", APITagsView(db=db)))

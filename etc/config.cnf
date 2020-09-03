@@ -1,12 +1,14 @@
 [service]
-port = 8085
+port = 8080
 base-url = /
 api-base-url = /api/v1/
-cdn-url = http://localhost:8082
-jinja2-templates-dir = static
-swagger-yml = sample/swagger.yml
+cdn-url = /static
+static-dir = /etc/service/static
+default-theme = monokaiorange
+jinja2-templates-dir = /etc/service/templates
+swagger-yml = /etc/service/swagger.yml
 swagger-url = /api/v1/doc
-db = sample/db.yml
+db = /etc/service/db.yml
 
 [logging]
 ;access-logfile = /var/log/service/access.log
