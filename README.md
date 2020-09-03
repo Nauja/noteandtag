@@ -81,7 +81,7 @@ docker run \
 Where:
   * **/path/to/etc**: is the path to the service directory containing **config.cnf**.
   * **/path/to/log**: is the path to the directory where you wan't to store logs.
-  * **8080**: is the public port to access the REST API.
+  * **8080**: is the public port to access the service.
 
 You should see:
 
