@@ -44,7 +44,7 @@ optional arguments:
 
 ```
 
-To quick start using NoteAndTag, you can download this repository and run:
+To quick start using *NoteAndTag*, you can download this repository and run:
 
 ```bash
 python -m noteandtag etc
@@ -58,7 +58,7 @@ You should see:
 
 ```
 
-You can now go to `http://localhost:8080` and start using NoteAndTag.
+You can now go to `http://localhost:8080` and start using *NoteAndTag*.
 
 ## Running with Docker
 
