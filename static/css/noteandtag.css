@@ -144,6 +144,10 @@ body {
     line-height: 2em;
 }
 
+.nat-note-body img {
+    width: 100%;
+}
+
 .nat-note-tags {
     background-color: #cccccc;
     border-top: 1px solid white;
