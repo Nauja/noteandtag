@@ -58,12 +58,12 @@ port = 8080
 base-url = /
 api-base-url = /api/v1/
 cdn-url = /static
-static-dir = /etc/service/static
+static-dir = static
+jinja2-templates-dir = etc/templates
 default-theme = monokaiorange
-jinja2-templates-dir = /etc/service/templates
-swagger-yml = /etc/service/swagger.yml
+swagger-yml = etc/swagger.yml
 swagger-url = /api/v1/doc
-db = /etc/service/db.yml
+db = etc/db.yml
 ```
 
 Where:
