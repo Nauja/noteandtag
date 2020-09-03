@@ -79,7 +79,7 @@ Where:
   * **swagger-url**: is the base URL to access Swagger documentation.
   * **db**: is the file where notes will be saved.
 
-You should see:
+You should now see:
 
 ```bash
 ======== Running on http://0.0.0.0:8080 ========
@@ -87,7 +87,7 @@ You should see:
 
 ```
 
-You can now go to `http://localhost:8080` and start using *NoteAndTag*.
+Meaning you can go to `http://localhost:8080` and start using *NoteAndTag*.
 
 ## Running with Docker
 
