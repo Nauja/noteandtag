@@ -93,7 +93,7 @@ def IndexView(*, api_base_url: str, cdn_url: str, default_theme: str) -> web.Vie
             return {
                 "api_base_url": api_base_url,
                 "cdn_url": cdn_url,
-                "theme": self.request.rel_url.query.get("theme", default_theme)
+                "theme": self.request.rel_url.query.get("theme", default_theme),
             }
 
     return Wrapper
@@ -157,11 +157,12 @@ def Application(
         app.add_routes([web.static(cdn_url, static_dir)])
 
     # Web
-    app.router.add_view(base_url, IndexView(
-        api_base_url=api_base_url,
-        cdn_url=cdn_url,
-        default_theme=default_theme
-    ))
+    app.router.add_view(
+        base_url,
+        IndexView(
+            api_base_url=api_base_url, cdn_url=cdn_url, default_theme=default_theme
+        ),
+    )
 
     # API
     cors.add(app.router.add_view(api_base_url + "tags", APITagsView(db=db)))

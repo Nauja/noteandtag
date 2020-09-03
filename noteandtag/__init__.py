@@ -77,7 +77,10 @@ def run(
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(prog="Service", description="Help")
+    parser = argparse.ArgumentParser(
+        prog="noteandtag",
+        description="Website and REST API for taking notes and organizing by tags",
+    )
     parser.add_argument("directory", type=str, help="config directory")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbosity level")
     args = parser.parse_args(args=argv)
