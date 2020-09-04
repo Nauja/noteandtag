@@ -1,33 +1,30 @@
 import json
+import re
 from aiohttp import web
 import aiohttp_cors
 import aiohttp_swagger
 import aiohttp_jinja2
 import jinja2
+from functools import wraps
 from typing import Callable, Any, List
 from noteandtag import monad
+from noteandtag.app import validator
 
 
 def APITagsView(*, db: monad.Database) -> web.View:
     class Wrapper(web.View, aiohttp_cors.CorsViewMixin):
-        async def get(self):
-            return web.Response(
-                text=json.dumps(
-                    {"result": "Ok", "params": db.get_tags()}, ensure_ascii=False
-                )
-            )
+        @validator.filtering
+        async def get(self, *, filters):
+            return db.get_tags(filters=filters)
 
     return Wrapper
 
 
 def APINotesView(*, db: monad.Database) -> web.View:
     class Wrapper(web.View, aiohttp_cors.CorsViewMixin):
-        async def get(self):
-            return web.Response(
-                text=json.dumps(
-                    {"result": "Ok", "params": db.get_notes()}, ensure_ascii=False
-                )
-            )
+        @validator.filtering
+        async def get(self, *, filters):
+            return db.get_notes(filters=filters)
 
         async def put(self):
             data = await self.request.json()
@@ -46,13 +43,11 @@ def APINotesView(*, db: monad.Database) -> web.View:
 
 def APINotesByTagsView(*, db: monad.Database) -> web.View:
     class Wrapper(web.View, aiohttp_cors.CorsViewMixin):
-        async def get(self):
-            tags = self.request.match_info["tags"].split(":")
-            return web.Response(
-                text=json.dumps(
-                    {"result": "Ok", "params": db.get_notes_by_tags(tags)},
-                    ensure_ascii=False,
-                )
+        @validator.filtering
+        async def get(self, *, filters):
+            return db.get_notes_by_tags(
+                tags=self.request.match_info["tags"].split(":"),
+                filters=filters
             )
 
     return Wrapper

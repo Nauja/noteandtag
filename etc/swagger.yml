@@ -1,9 +1,9 @@
 ---
 swagger: "2.0"
 info:
-  description: "Node and Tag"
+  description: "Note and Tag"
   version: "0.1a1"
-  title: "Node and Tag REST API"
+  title: "Note and Tag REST API"
 basePath: "/api/v1"
 tags:
 - name: "tags"
@@ -14,12 +14,43 @@ tags:
 schemes:
 - "https"
 - "http"
+components:
+  parameters:
+    offsetParam:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+      description: The numbers of items to return.
+    sortByParam:
+      in: query
+      name: sortBy
+      required: false
+      schema:
+        type: string
+      description: Sort the items by fields.
 paths:
   /tags:
     get:
       description: "Get all tags."
       tags:
       - tags
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/sortByParam'
       produces:
       - text/json
       responses:
@@ -30,6 +61,10 @@ paths:
       description: "Get all notes."
       tags:
       - notes
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/sortByParam'
       produces:
       - text/json
       responses:
@@ -49,6 +84,9 @@ paths:
         description: "list of tags"
         required: true
         type: "list"
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/sortByParam'
       responses:
         "200":
             description: successful operation. Return notes informations

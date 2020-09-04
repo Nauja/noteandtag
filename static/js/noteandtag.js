@@ -47,14 +47,7 @@ $(document).ready(function() {
 				contentType: "application/json",
 				dataType: "json",
 				success: (response) => {
-					if (response["result"] != "Ok")
-					{
-						console.log(response["error"]);
-					}
-					else
-					{
-						this._display(response["params"]);
-					}
+					this._display(response);
 				}
 			});
 		}
@@ -139,15 +132,7 @@ $(document).ready(function() {
 				dataType: "json",
 				data: JSON.stringify({"data": new_data}),
 				success: (response) => {
-					if (response["result"] != "Ok")
-					{
-						alert(response["error"]);
-					}
-					else
-					{
-						new_data = response["params"];
-						this._saved.fire(new_data);
-					}
+					this._saved.fire(response);
 				}
 			});
 		},
@@ -364,14 +349,7 @@ $(document).ready(function() {
 				contentType: "application/json",
 				dataType: "json",
 				success: (response) => {
-					if (response["result"] != "Ok")
-					{
-						console.log(response["error"]);
-					}
-					else
-					{
-						this._display(response["params"]);
-					}
+					this._display(response);
 				}
 			});
 		}

@@ -3,6 +3,26 @@ import yaml
 import shutil
 import os
 import tempfile
+from functools import wraps
+
+
+def _filtering(fun):
+    @wraps(fun)
+    def wrapper(*args, filters, **kwargs):
+        def int_or(value, default):
+            return default if value is None else value
+
+        return fun(
+            *args,
+            filters={
+                "offset": int_or(filters.get("offset", None), 0),
+                "limit": min(int_or(filters.get("limit", None), 50), 50),
+                "sort": filters.get("sort", [])
+            },
+            **kwargs
+        )
+
+    return wrapper
 
 
 class Database:
@@ -10,19 +30,23 @@ class Database:
         self._filename = filename
         self._notes = []
 
-    def get_notes(self):
-        return self._notes
+    @_filtering
+    def get_notes(self, *, filters):
+        return self._notes[filters["offset"]:filters["limit"]], len(self._notes)
 
-    def get_tags(self):
+    @_filtering
+    def get_tags(self, *, filters):
         d = {}
 
         for note in self._notes:
             for _ in note["tags"]:
                 d[_] = d.get(_, 0) + 1
 
-        return [{"name": tag, "total": total} for tag, total in d.items()]
+        items = [{"name": tag, "total": total} for tag, total in d.items()]
+        return items[filters["offset"]:filters["limit"]], len(items)
 
-    def get_notes_by_tags(self, tags):
+    @_filtering
+    def get_notes_by_tags(self, tags, *, filters):
         def matches(note):
             for _ in note["tags"]:
                 if _ in tags:
@@ -30,7 +54,8 @@ class Database:
 
             return False
 
-        return list(_ for _ in self._notes if matches(_))
+        items = list(_ for _ in self._notes if matches(_))
+        return items[filters["offset"]:filters["limit"]], len(items)
 
     def get_note_by_id(self, id):
         for _ in self._notes:
