@@ -10,11 +10,11 @@ Website and REST API for taking notes and organizing by tags
 
 ## Online demo
 
-You can test the website online at [noteandtag.jeremymorosi.com](http://noteandtag-sandbox.jeremymorosi.com):
+You can test the website online at [noteandtag-sandbox.jeremymorosi.com](http://noteandtag-sandbox.jeremymorosi.com):
 
 ![alt text](http://cdn.jeremymorosi.com/noteandtag/website_preview.png "Preview")
 
-You can test the REST API online at [noteandtag.jeremymorosi.com/api/v1/doc](http://noteandtag-sandbox.jeremymorosi.com/api/v1/doc):
+You can test the REST API online at [noteandtag-sandbox.jeremymorosi.com/api/v1/doc](http://noteandtag-sandbox.jeremymorosi.com/api/v1/doc):
 
 ![alt text](http://cdn.jeremymorosi.com/noteandtag/swagger_preview.png "Preview")
 
