@@ -273,9 +273,11 @@ $(document).ready(function() {
 		},
 		_update_tags: function(tags) {
 			this._widgets.tags.html("");
-			tags.forEach(tag => {
-				this._widgets.tags.append($("<span>", {'class': 'nat-note-tag', 'text': tag}));
-			});
+			if (tags !== undefined) {
+				tags.forEach(tag => {
+					this._widgets.tags.append($("<span>", {'class': 'nat-note-tag', 'text': tag}));
+				});
+			}
 		},
 		update: function(data) {
 			this.root.attr("data-id", data["id"]);
@@ -338,16 +340,17 @@ $(document).ready(function() {
 			this._changed.add(cb);
 		},
 		query: function(tags) {
-			let url = this._api_base_url + "notes/"
+			data = {}
 			if (tags !== undefined) {
-				url += tags.join(":");
+				data["tags"] = tags.join(",");
 			}
-	
+
 			$.ajax({
-				url: url,
+				url: this._api_base_url + "notes/",
 				type: "GET",
 				contentType: "application/json",
 				dataType: "json",
+				data: data,
 				success: (response) => {
 					this._display(response);
 				}

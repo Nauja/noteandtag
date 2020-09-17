@@ -62,31 +62,31 @@ paths:
       tags:
       - notes
       parameters:
-      - $ref: '#/components/parameters/offsetParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortByParam'
-      produces:
-      - text/json
-      responses:
-        "200":
-            description: successful operation. Return notes informations
-  /notes/{tags}:
-    get:
-      description: "Get all notes matching tags."
-      tags:
-      - notes
-      produces:
-      - text/json
-      parameters:
+      - name: "ids"
+        in: "query"
+        description: "Return only notes with those ids."
+        required: false
+        type: "list"
+      - name: "label"
+        in: "query"
+        description: "Return only notes matching this label."
+        required: false
+        type: "string"
+      - name: "body"
+        in: "query"
+        description: "Return only notes matching this body."
+        required: false
+        type: "string"
       - name: "tags"
-        in: "path"
-        default: "tag1:tag2"
-        description: "list of tags"
-        required: true
+        in: "query"
+        description: "Return only notes having those tags."
+        required: false
         type: "list"
       - $ref: '#/components/parameters/offsetParam'
       - $ref: '#/components/parameters/limitParam'
       - $ref: '#/components/parameters/sortByParam'
+      produces:
+      - text/json
       responses:
         "200":
             description: successful operation. Return notes informations

@@ -4,20 +4,22 @@ import shutil
 import os
 import tempfile
 from functools import wraps
+from typing import List, Dict, Any
 
 
 def _filtering(fun):
     @wraps(fun)
-    def wrapper(*args, filters, **kwargs):
-        def int_or(value, default):
-            return default if value is None else value
+    def wrapper(*args, filters=None, **kwargs):
+        def get_attr(name, default):
+            value = filters.get(name, None) if filters else None
+            return value if value is not None else default
 
         return fun(
             *args,
             filters={
-                "offset": int_or(filters.get("offset", None), 0),
-                "limit": min(int_or(filters.get("limit", None), 50), 50),
-                "sort": filters.get("sort", [])
+                "offset": int(get_attr("offset", 0)),
+                "limit": min(int(get_attr("limit", 50)), 50),
+                "sort": get_attr("sort", []),
             },
             **kwargs
         )
@@ -31,8 +33,42 @@ class Database:
         self._notes = []
 
     @_filtering
-    def get_notes(self, *, filters):
-        return self._notes[filters["offset"]:filters["limit"]], len(self._notes)
+    def get_notes(
+        self,
+        *,
+        filters: Dict[str, Any],
+        ids: List[str] = None,
+        label: str = None,
+        body: str = None,
+        tags: List[str] = None
+    ):
+        def _matches(note):
+            import re
+
+            if ids and note["id"] not in ids:
+                return False
+
+            if label is not None and not re.search(label, note["label"], re.IGNORECASE):
+                return False
+
+            if body is not None and not re.search(body, note["body"], re.IGNORECASE):
+                return False
+
+            if tags:
+                for tag in tags:
+                    if tag not in note["tags"]:
+                        return False
+
+            return True
+
+        items = [_ for _ in self._notes if _matches(_)]
+
+        for criteria in filters["sort"]:
+            items.sort(
+                key=lambda _: _[criteria["field"]], reverse=criteria["order"] == "desc"
+            )
+
+        return items[filters["offset"] : filters["limit"]], len(items)
 
     @_filtering
     def get_tags(self, *, filters):
@@ -43,7 +79,7 @@ class Database:
                 d[_] = d.get(_, 0) + 1
 
         items = [{"name": tag, "total": total} for tag, total in d.items()]
-        return items[filters["offset"]:filters["limit"]], len(items)
+        return items[filters["offset"] : filters["limit"]], len(items)
 
     @_filtering
     def get_notes_by_tags(self, tags, *, filters):
@@ -55,7 +91,7 @@ class Database:
             return False
 
         items = list(_ for _ in self._notes if matches(_))
-        return items[filters["offset"]:filters["limit"]], len(items)
+        return items[filters["offset"] : filters["limit"]], len(items)
 
     def get_note_by_id(self, id):
         for _ in self._notes:

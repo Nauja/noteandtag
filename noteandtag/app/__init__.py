@@ -24,7 +24,17 @@ def APINotesView(*, db: monad.Database) -> web.View:
     class Wrapper(web.View, aiohttp_cors.CorsViewMixin):
         @validator.filtering
         async def get(self, *, filters):
-            return db.get_notes(filters=filters)
+            query = self.request.rel_url.query
+
+            return db.get_notes(
+                filters=filters,
+                ids=[int(_) for _ in query["ids"].split(",")]
+                if "ids" in query
+                else None,
+                label=query.get("label", None),
+                body=query.get("body", None),
+                tags=query["tags"].split(",") if "tags" in query else None,
+            )
 
         async def put(self):
             data = await self.request.json()
@@ -34,21 +44,7 @@ def APINotesView(*, db: monad.Database) -> web.View:
 
             db.save_notes()
 
-            return web.Response(
-                text=json.dumps({"result": "Ok", "params": note}, ensure_ascii=False)
-            )
-
-    return Wrapper
-
-
-def APINotesByTagsView(*, db: monad.Database) -> web.View:
-    class Wrapper(web.View, aiohttp_cors.CorsViewMixin):
-        @validator.filtering
-        async def get(self, *, filters):
-            return db.get_notes_by_tags(
-                tags=self.request.match_info["tags"].split(":"),
-                filters=filters
-            )
+            return web.Response(text=json.dumps(note, ensure_ascii=False))
 
     return Wrapper
 
@@ -57,13 +53,11 @@ def APINoteByIdView(*, db: monad.Database) -> web.View:
     class Wrapper(web.View, aiohttp_cors.CorsViewMixin):
         async def get(self):
             id = int(self.request.match_info["id"])
-            note = db.get_note_by_id(id)
-            if not note:
+            notes, _ = db.get_notes(ids=[id])
+            if not notes:
                 return web.HTTPNotFound()
 
-            return web.Response(
-                text=json.dumps({"result": "Ok", "params": note}, ensure_ascii=False)
-            )
+            return web.Response(text=json.dumps(notes[0], ensure_ascii=False))
 
         async def post(self):
             id = int(self.request.match_info["id"])
@@ -74,9 +68,7 @@ def APINoteByIdView(*, db: monad.Database) -> web.View:
 
             db.save_notes()
 
-            return web.Response(
-                text=json.dumps({"result": "Ok", "params": note}, ensure_ascii=False)
-            )
+            return web.Response(text=json.dumps(note, ensure_ascii=False))
 
     return Wrapper
 
@@ -164,18 +156,6 @@ def Application(
     cors.add(app.router.add_view(api_base_url + "tags/", APITagsView(db=db)))
     cors.add(app.router.add_view(api_base_url + "notes", APINotesView(db=db)))
     cors.add(app.router.add_view(api_base_url + "notes/", APINotesView(db=db)))
-    cors.add(
-        app.router.add_view(
-            api_base_url + "notes/{tags:(([%a-zA-Z][-_%a-zA-Z0-9]*):?)+}",
-            APINotesByTagsView(db=db),
-        )
-    )
-    cors.add(
-        app.router.add_view(
-            api_base_url + "notes/{tags:(([%a-zA-Z][-_%a-zA-Z0-9]*):?)+}/",
-            APINotesByTagsView(db=db),
-        )
-    )
     cors.add(
         app.router.add_view(api_base_url + "notes/{id:[0-9]+}", APINoteByIdView(db=db))
     )

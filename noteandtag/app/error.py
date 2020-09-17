@@ -25,7 +25,7 @@ def bad_request(label: str, code: int, description: str) -> web.HTTPBadRequest:
             {"error": label, "error_code": code, "error_description": description},
             ensure_ascii=False,
         ),
-        content_type="application/json"
+        content_type="application/json",
     )
 
 
@@ -43,7 +43,5 @@ def invalid_parameter(name: str) -> web.HTTPBadRequest:
     :param name: name of expected query parameter
     """
     bad_request(
-        label="invalid_parameter",
-        code=0,
-        description=f"check your {name} parameter"
+        label="invalid_parameter", code=0, description=f"check your {name} parameter"
     )

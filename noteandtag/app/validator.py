@@ -61,10 +61,7 @@ def _parse_sort_query_param(request, name: str) -> List:
         if not m:
             error.invalid_parameter(name)
 
-        items.append({
-            "field": m.group("field"),
-            "order": m.group("order")
-        })
+        items.append({"field": m.group("field"), "order": m.group("order")})
 
     return items
 
@@ -79,6 +76,7 @@ def filtering(fun):
     Raise an **invalid_parameter** error if user inputs are invalid.
 
     """
+
     @wraps(fun)
     async def wrapper(self, *args, **kwargs):
         # Filter items according to parameters
@@ -88,7 +86,7 @@ def filtering(fun):
             filters={
                 "offset": _parse_int_query_param(self.request, "offset"),
                 "limit": _parse_int_query_param(self.request, "limit"),
-                "sort": _parse_sort_query_param(self.request, "sortBy")
+                "sort": _parse_sort_query_param(self.request, "sortBy"),
             },
             **kwargs
         )
@@ -99,9 +97,7 @@ def filtering(fun):
                 items,
                 ensure_ascii=False,
             ),
-            headers={
-                "X-Total-Count": str(total)
-            }
+            headers={"X-Total-Count": str(total)},
         )
 
     return wrapper
