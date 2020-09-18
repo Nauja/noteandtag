@@ -3,6 +3,7 @@ import yaml
 import shutil
 import os
 import tempfile
+import sqlite3
 from functools import wraps
 from typing import List, Dict, Any
 
@@ -30,7 +31,53 @@ def _filtering(fun):
 class Database:
     def __init__(self, filename: str):
         self._filename = filename
-        self._notes = []
+        self._conn = None
+        self._query("SELECT * FROM note")
+
+    def _query(self, stmt, args=None):
+        if self._conn is None:
+            self._conn = Database._connect(self._filename)
+
+        cur = self._conn.cursor()
+        return cur.execute(stmt)
+
+    @staticmethod
+    def _connect(filename):
+        found = os.path.isfile(filename)
+
+        conn = sqlite3.connect(filename)
+
+        if not found:
+            Database._setup(conn=conn)
+
+        return conn
+
+    @staticmethod
+    def _setup(conn):
+        cur = conn.cursor()
+
+        cur.execute(
+            """
+            CREATE TABLE "note" (
+                "id" INTEGER NOT NULL,
+                "label"	TEXT NOT NULL,
+                "author" TEXT NOT NULL,
+                "body" TEXT NOT NULL,
+                PRIMARY KEY("id" AUTOINCREMENT)
+            )
+            """
+        )
+
+        cur.execute(
+            """
+            CREATE TABLE "note_tag" (
+                "noteid" INTEGER NOT NULL,
+                "label" TEXT NOT NULL,
+                PRIMARY KEY("noteid", "label"),
+                FOREIGN KEY("noteid") REFERENCES note("id")
+            )
+            """
+        )
 
     @_filtering
     def get_notes(
@@ -42,6 +89,13 @@ class Database:
         body: str = None,
         tags: List[str] = None
     ):
+        items = self._query(
+            """
+            SELECT *
+            FROM note
+            """
+        )
+        print(items)
         def _matches(note):
             import re
 
@@ -117,29 +171,3 @@ class Database:
         self._notes.append(data)
 
         return data
-
-    def load_notes(self):
-        """Load notes from external YAML file.
-
-        :return: notes as JSON dicts
-        """
-        if os.path.isfile(self._filename):
-            with open(self._filename, "rb") as f:
-                content = f.read().decode()
-                self._notes = list(yaml.safe_load_all(content))
-
-        return self._notes
-
-    def save_notes(self):
-        """Save notes to external YAML file."""
-        tmp = tempfile.NamedTemporaryFile(mode="w+b", delete=False)
-        try:
-            content = yaml.safe_dump_all(self._notes, allow_unicode=True).encode()
-            tmp.write(content)
-            tmp.close()
-
-            shutil.copy(tmp.name, self._filename)
-        finally:
-            if not tmp.closed:
-                tmp.close()
-            os.remove(tmp.name)

@@ -8,7 +8,7 @@ jinja2-templates-dir = etc/templates
 default-theme = monokaiorange
 swagger-yml = etc/swagger.yml
 swagger-url = /api/v1/doc
-db = etc/db.yml
+db = etc/db.sqlite3
 
 [logging]
 ;access-logfile = /var/log/service/access.log

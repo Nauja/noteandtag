@@ -42,8 +42,6 @@ def APINotesView(*, db: monad.Database) -> web.View:
             if not note:
                 return web.HTTPInternalServerError()
 
-            db.save_notes()
-
             return web.Response(text=json.dumps(note, ensure_ascii=False))
 
     return Wrapper
@@ -65,8 +63,6 @@ def APINoteByIdView(*, db: monad.Database) -> web.View:
             note = db.update_note(id, data["data"])
             if not note:
                 return web.HTTPNotFound()
-
-            db.save_notes()
 
             return web.Response(text=json.dumps(note, ensure_ascii=False))
 
@@ -115,7 +111,6 @@ def Application(
     :return: application
     """
     db = monad.Database(db)
-    db.load_notes()
 
     app = web.Application(*args, **kwargs)
 
