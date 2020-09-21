@@ -28,18 +28,60 @@ def _filtering(fun):
     return wrapper
 
 
+class _CursorContext:
+    def __init__(self, conn):
+        self._conn = conn
+
+    def __enter__(self):
+        self._cur = self._conn.cursor()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        pass
+
+    def query(self, stmt, args=None):
+        self._cur.execute(stmt, args or [])
+        return self._cur.fetchall()
+
+    def query_value(self, stmt, args=None):
+        self._cur.execute(stmt, args or [])
+        row = self._cur.fetchone()
+        if row is None:
+            return None
+        for k, v in row.items():
+            return v
+        return None
+
+    def execute(self, stmt, args=None):
+        self._cur.execute(stmt, args or [])
+        self._conn.commit()
+
+    @property
+    def lastrowid(self):
+        return self._cur.lastrowid
+
+
 class Database:
     def __init__(self, filename: str):
         self._filename = filename
         self._conn = None
-        self._query("SELECT * FROM note")
 
-    def _query(self, stmt, args=None):
+        with self._cursor() as cur:
+            cur.query("SELECT * FROM note")
+
+    @staticmethod
+    def dict_factory(cursor, row):
+        d = {}
+        for idx, col in enumerate(cursor.description):
+            d[col[0]] = row[idx]
+        return d
+
+    def _cursor(self):
         if self._conn is None:
             self._conn = Database._connect(self._filename)
+            self._conn.row_factory = Database.dict_factory
 
-        cur = self._conn.cursor()
-        return cur.execute(stmt)
+        return _CursorContext(self._conn)
 
     @staticmethod
     def _connect(filename):
@@ -54,30 +96,29 @@ class Database:
 
     @staticmethod
     def _setup(conn):
-        cur = conn.cursor()
-
-        cur.execute(
-            """
-            CREATE TABLE "note" (
-                "id" INTEGER NOT NULL,
-                "label"	TEXT NOT NULL,
-                "author" TEXT NOT NULL,
-                "body" TEXT NOT NULL,
-                PRIMARY KEY("id" AUTOINCREMENT)
+        with _CursorContext(conn) as cur:
+            cur.execute(
+                """
+                CREATE TABLE "note" (
+                    "id" INTEGER NOT NULL,
+                    "label"	TEXT NOT NULL,
+                    "author" TEXT NOT NULL,
+                    "body" TEXT NOT NULL,
+                    PRIMARY KEY("id" AUTOINCREMENT)
+                )
+                """
             )
-            """
-        )
 
-        cur.execute(
-            """
-            CREATE TABLE "note_tag" (
-                "noteid" INTEGER NOT NULL,
-                "label" TEXT NOT NULL,
-                PRIMARY KEY("noteid", "label"),
-                FOREIGN KEY("noteid") REFERENCES note("id")
+            cur.execute(
+                """
+                CREATE TABLE "note_tag" (
+                    "noteid" INTEGER NOT NULL,
+                    "label" TEXT NOT NULL,
+                    PRIMARY KEY("noteid", "label"),
+                    FOREIGN KEY("noteid") REFERENCES note("id")
+                )
+                """
             )
-            """
-        )
 
     @_filtering
     def get_notes(
@@ -89,51 +130,55 @@ class Database:
         body: str = None,
         tags: List[str] = None
     ):
-        items = self._query(
-            """
-            SELECT *
+        stmt = """
             FROM note
-            """
-        )
-        print(items)
-        def _matches(note):
-            import re
+        """
 
-            if ids and note["id"] not in ids:
-                return False
-
-            if label is not None and not re.search(label, note["label"], re.IGNORECASE):
-                return False
-
-            if body is not None and not re.search(body, note["body"], re.IGNORECASE):
-                return False
-
-            if tags:
-                for tag in tags:
-                    if tag not in note["tags"]:
-                        return False
-
-            return True
-
-        items = [_ for _ in self._notes if _matches(_)]
-
-        for criteria in filters["sort"]:
-            items.sort(
-                key=lambda _: _[criteria["field"]], reverse=criteria["order"] == "desc"
+        with self._cursor() as cur:
+            total = cur.query_value(
+                """
+                SELECT COUNT(id)
+                {}
+                """.format(stmt)
             )
 
-        return items[filters["offset"] : filters["limit"]], len(items)
+            items = cur.query(
+                """
+                SELECT *
+                {}
+                LIMIT ?, ?
+                """.format(stmt),
+                (filters["offset"], filters["limit"])
+            )
+        
+        return items, total
 
     @_filtering
     def get_tags(self, *, filters):
-        d = {}
+        stmt = """
+            FROM note_tag
+            GROUP BY label
+        """
 
-        for note in self._notes:
-            for _ in note["tags"]:
-                d[_] = d.get(_, 0) + 1
+        with self._cursor() as cur:
+            total = cur.query_value(
+                """
+                SELECT COUNT(label)
+                {}
+                """.format(stmt)
+            )
 
-        items = [{"name": tag, "total": total} for tag, total in d.items()]
-        return items[filters["offset"] : filters["limit"]], len(items)
+            items = cur.query(
+                """
+                SELECT label, SUM(noteid) AS total
+                {}
+                LIMIT ?, ?
+                """.format(stmt),
+                (filters["offset"], filters["limit"])
+            )
+            print(items, total)
+
+        return items, total
 
     @_filtering
     def get_notes_by_tags(self, tags, *, filters):
@@ -165,9 +210,35 @@ class Database:
         return False
 
     def add_note(self, data):
-        id = (max(int(_["id"]) for _ in self._notes) + 1) if self._notes else 1
-        data["id"] = id
         data = yaml.safe_load(yaml.safe_dump(data))
-        self._notes.append(data)
+
+        with self._cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO note
+                (label, author, body)
+                VALUES (?, ?, ?)
+                """,
+                (
+                    data["label"],
+                    data["author"],
+                    data["body"]
+                )
+            )
+
+            data["id"] = cur.lastrowid
+
+            for _ in data["tags"]:
+                cur.execute(
+                    """
+                    INSERT INTO note_tag
+                    (noteid, label)
+                    VALUES (?, ?)
+                    """,
+                    (
+                        data["id"],
+                        _
+                    )
+                )
 
         return data
