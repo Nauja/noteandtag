@@ -1,5 +1,6 @@
 # NoteAndTag
 
+![Python](https://img.shields.io/badge/python-3.6&nbsp;|&nbsp;3.7&nbsp;|&nbsp;3.8-blue.svg)
 ![Python package](https://github.com/Nauja/noteandtag/workflows/Python%20package/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/noteandtag/badge/?version=latest)](https://noteandtag.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/Nauja/noteandtag/branch/master/graph/badge.svg?token=BCPDYDQV5T)](https://codecov.io/gh/Nauja/noteandtag)
