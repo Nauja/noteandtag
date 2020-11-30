@@ -51,11 +51,11 @@ def APINoteByIdView(*, db: monad.Database) -> web.View:
     class Wrapper(web.View, aiohttp_cors.CorsViewMixin):
         async def get(self):
             id = int(self.request.match_info["id"])
-            notes, _ = db.get_notes(ids=[id])
-            if not notes:
+            note = db.get_note_by_id(id)
+            if not note:
                 return web.HTTPNotFound()
 
-            return web.Response(text=json.dumps(notes[0], ensure_ascii=False))
+            return web.Response(text=json.dumps(note, ensure_ascii=False))
 
         async def post(self):
             id = int(self.request.match_info["id"])

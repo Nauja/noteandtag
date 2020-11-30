@@ -22,7 +22,7 @@ def _filtering(fun):
                 "limit": min(int(get_attr("limit", 50)), 50),
                 "sort": get_attr("sort", []),
             },
-            **kwargs
+            **kwargs,
         )
 
     return wrapper
@@ -42,6 +42,10 @@ class _CursorContext:
     def query(self, stmt, args=None):
         self._cur.execute(stmt, args or [])
         return self._cur.fetchall()
+
+    def query_row(self, stmt, args=None):
+        self._cur.execute(stmt, args or [])
+        return self._cur.fetchone()
 
     def query_value(self, stmt, args=None):
         self._cur.execute(stmt, args or [])
@@ -120,6 +124,17 @@ class Database:
                 """
             )
 
+    """Get a list of notes matching multiple filters.
+
+    Filters have no effect when requesting by ids.
+    :param filters: pagination and sort filters
+    :param ids: list of notes ids
+    :param label: only notes matching this label
+    :param body: only notes matching this body
+    :param tags: only notes matching those tags
+    :return: a tuple (notes, total)
+    """
+
     @_filtering
     def get_notes(
         self,
@@ -128,30 +143,108 @@ class Database:
         ids: List[str] = None,
         label: str = None,
         body: str = None,
-        tags: List[str] = None
+        tags: List[str] = None,
     ):
+        # Fetch notes by ids only
+        if ids:
+            notes = self._get_notes_by_ids(ids)
+            return notes, len(notes)
+
+        # Fetch all notes
+        return self._search_notes(filters=filters, label=label, body=body, tags=tags)
+
+    """Return only notes from a list of ids.
+
+    This may return less notes than ids if some ids don't exist in DB.
+    :param ids: list of ids
+    :return: notes
+    """
+
+    def _get_notes_by_ids(self, ids):
+        return [_ for _ in (self.get_note_by_id(_) for _ in ids) if _]
+
+    """Get a list of notes matching multiple filters.
+
+    This is equivalent to:
+
+    .. code-block:: python
+
+        SELECT *
+        FROM note
+        WHERE label LIKE '%...%'
+        AND body LIKE '%...%'
+        LIMIT offset, limit
+
+    Notes are filtered by tags afterward.
+
+    :param filters: pagination and sort filters
+    :param label: only notes matching this label
+    :param body: only notes matching this body
+    :param tags: only notes matching those tags
+    :return: a tuple (notes, total)
+    """
+
+    def _search_notes(
+        self,
+        *,
+        filters: Dict[str, Any],
+        label: str = None,
+        body: str = None,
+        tags: List[str] = None,
+    ):
+        tags = tags if tags else []
+        conditions = []
+        args = []
+
+        # Must contain a label
+        if label is not None:
+            conditions.append("label LIKE ?")
+            args.append(f"%{label}%")
+
+        # Must contain a body
+        if body is not None:
+            conditions.append("body LIKE ?")
+            args.append(f"%{body}%")
+
         stmt = """
             FROM note
-        """
+            {}
+        """.format(
+            "WHERE {}".format(" AND ".join(conditions)) if conditions else ""
+        )
 
         with self._cursor() as cur:
             total = cur.query_value(
                 """
                 SELECT COUNT(id)
                 {}
-                """.format(stmt)
+                """.format(
+                    stmt
+                ),
+                args,
             )
 
-            items = cur.query(
+            notes = cur.query(
                 """
                 SELECT *
                 {}
                 LIMIT ?, ?
-                """.format(stmt),
-                (filters["offset"], filters["limit"])
+                """.format(
+                    stmt
+                ),
+                args + [filters["offset"], filters["limit"]],
             )
-        
-        return items, total
+
+        # Fetch tags
+        for _ in notes:
+            _["tags"] = self.get_note_tags(_["id"])
+
+        # Keep only notes matching tags
+        size = len(notes)
+        notes = [_ for _ in notes if all(tag in _["tags"] for tag in tags)]
+        total -= size - len(notes)
+
+        return notes, total
 
     @_filtering
     def get_tags(self, *, filters):
@@ -165,68 +258,119 @@ class Database:
                 """
                 SELECT COUNT(label)
                 {}
-                """.format(stmt)
+                """.format(
+                    stmt
+                )
             )
 
             items = cur.query(
                 """
-                SELECT label, SUM(noteid) AS total
+                SELECT label AS name, COUNT(noteid) AS total
                 {}
                 LIMIT ?, ?
-                """.format(stmt),
-                (filters["offset"], filters["limit"])
+                """.format(
+                    stmt
+                ),
+                (filters["offset"], filters["limit"]),
             )
-            print(items, total)
 
         return items, total
 
-    @_filtering
-    def get_notes_by_tags(self, tags, *, filters):
-        def matches(note):
-            for _ in note["tags"]:
-                if _ in tags:
-                    return True
-
-            return False
-
-        items = list(_ for _ in self._notes if matches(_))
-        return items[filters["offset"] : filters["limit"]], len(items)
+    """Get a single note by id.
+    :param id: note id
+    :return: note or None
+    """
 
     def get_note_by_id(self, id):
-        for _ in self._notes:
-            if _["id"] == id:
-                return _
+        with self._cursor() as cur:
+            data = cur.query_row(
+                """
+                SELECT *
+                FROM note
+                WHERE id=?
+                """,
+                (id,),
+            )
 
-        return None
+        if not data:
+            return None
+
+        data["tags"] = self.get_note_tags(id)
+        return data
+
+    def get_note_tags(self, id):
+        with self._cursor() as cur:
+            return [
+                _["label"]
+                for _ in cur.query(
+                    """
+                SELECT label
+                FROM note_tag
+                WHERE noteid=?
+                """,
+                    (id,),
+                )
+            ]
+
+    """Check if a note exists in DB.
+    :param id: note id to check
+    :return: if it exists
+    """
+
+    def has_note(self, id):
+        with self._cursor() as cur:
+            return (
+                cur.query_value(
+                    """
+                SELECT id
+                FROM note
+                WHERE id=?
+                """,
+                    (id,),
+                )
+                is not None
+            )
+
+    """Update an existing note.
+    :param id: note id
+    :param data: new note data
+    :return: updated note
+    """
 
     def update_note(self, id, data):
         data = yaml.safe_load(yaml.safe_dump(data))
 
-        for _ in self._notes:
-            if _["id"] == id:
-                _.update(data)
-                return _
+        if not self.has_note(id):
+            return None
 
-        return False
+        self.delete_note(id)
+        return self.add_note(data, id=id)
 
-    def add_note(self, data):
+    """Add a new note to DB.
+    :param data: new note data
+    :param id: new note id
+    :return: added note
+    """
+
+    def add_note(self, data, *, id=None):
         data = yaml.safe_load(yaml.safe_dump(data))
 
         with self._cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO note
-                (label, author, body)
-                VALUES (?, ?, ?)
+                (id, label, author, body)
+                VALUES (?, ?, ?, ?)
                 """,
                 (
+                    None if id is None else id,
                     data["label"],
                     data["author"],
-                    data["body"]
-                )
+                    data["body"],
+                ),
             )
 
-            data["id"] = cur.lastrowid
+            data["id"] = cur.lastrowid if id is None else id
 
             for _ in data["tags"]:
                 cur.execute(
@@ -235,10 +379,16 @@ class Database:
                     (noteid, label)
                     VALUES (?, ?)
                     """,
-                    (
-                        data["id"],
-                        _
-                    )
+                    (data["id"], _),
                 )
 
         return data
+
+    """Delete a note from DB.
+    :param id: note id
+    """
+
+    def delete_note(self, id):
+        with self._cursor() as cur:
+            cur.execute("DELETE FROM note_tag WHERE noteid=?", (id,))
+            cur.execute("DELETE FROM note WHERE id=?", (id,))

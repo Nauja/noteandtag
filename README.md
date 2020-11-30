@@ -63,7 +63,7 @@ jinja2-templates-dir = etc/templates
 default-theme = monokaiorange
 swagger-yml = etc/swagger.yml
 swagger-url = /api/v1/doc
-db = etc/db.yml
+db = etc/db.sqlite3
 ```
 
 Where:
@@ -125,7 +125,7 @@ jinja2-templates-dir = /etc/service/templates
 default-theme = monokaiorange
 swagger-yml = /etc/service/swagger.yml
 swagger-url = /api/v1/doc
-db = /etc/service/db.yml
+db = /etc/service/db.sqlite3
 ```
 
 You should now see:
