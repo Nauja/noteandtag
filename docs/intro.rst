@@ -13,8 +13,8 @@ NoteAndTag
    :alt: Documentation Status
 
 
-.. image:: https://codeclimate.com/github/Nauja/noteandtag/badges/coverage.svg
-   :target: https://codeclimate.com/github/Nauja/noteandtag/coverage
+.. image:: https://codecov.io/gh/Nauja/noteandtag/branch/master/graph/badge.svg?token=BCPDYDQV5T
+   :target: https://codecov.io/gh/Nauja/noteandtag
    :alt: Test Coverage
 
 
@@ -36,16 +36,16 @@ Online demo
 You can test the website online at `noteandtag.jeremymorosi.com <http://noteandtag.jeremymorosi.com>`_\ :
 
 
-.. image:: http://cdn.jeremymorosi.com/noteandtag/website_preview.png
-   :target: http://cdn.jeremymorosi.com/noteandtag/website_preview.png
+.. image:: https://github.com/Nauja/noteandtag/blob/media/website_preview.png?raw=true
+   :target: https://github.com/Nauja/noteandtag/blob/media/website_preview.png?raw=true
    :alt: alt text
 
 
 You can test the REST API online at `noteandtag.jeremymorosi.com/api/v1/doc <http://noteandtag.jeremymorosi.com/api/v1/doc>`_\ :
 
 
-.. image:: http://cdn.jeremymorosi.com/noteandtag/swagger_preview.png
-   :target: http://cdn.jeremymorosi.com/noteandtag/swagger_preview.png
+.. image:: https://github.com/Nauja/noteandtag/blob/media/swagger_preview.png?raw=true
+   :target: https://github.com/Nauja/noteandtag/blob/media/swagger_preview.png?raw=true
    :alt: alt text
 
 
