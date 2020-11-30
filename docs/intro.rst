@@ -3,8 +3,8 @@ NoteAndTag
 ==========
 
 
-.. image:: https://img.shields.io/badge/python-3.6&nbsp;|&nbsp;3.7&nbsp;|&nbsp;3.8-blue.svg
-   :target: https://img.shields.io/badge/python-3.6&nbsp;|&nbsp;3.7&nbsp;|&nbsp;3.8-blue.svg
+.. image:: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8-blue.svg
+   :target: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8-blue.svg
    :alt: Python
 
 
