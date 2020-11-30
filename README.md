@@ -1,6 +1,6 @@
 # NoteAndTag
 
-[![Build Status](https://travis-ci.com/Nauja/noteandtag.png?branch=master)](https://travis-ci.com/Nauja/noteandtag)
+![Python package](https://github.com/Nauja/noteandtag/workflows/Python%20package/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/noteandtag/badge/?version=latest)](https://noteandtag.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/Nauja/noteandtag/branch/master/graph/badge.svg?token=BCPDYDQV5T)](https://codecov.io/gh/Nauja/noteandtag)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
