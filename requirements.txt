@@ -1,5 +1,0 @@
-aiohttp
-aiohttp_cors
-aiohttp_swagger
-aiohttp-jinja2
-pyyaml
