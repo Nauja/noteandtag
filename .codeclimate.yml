@@ -10,3 +10,5 @@ ratings:
   - "**.py"
 exclude_paths:
 - test
+- static
+- etc
