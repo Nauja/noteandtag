@@ -3,8 +3,13 @@ NoteAndTag
 ==========
 
 
-.. image:: https://travis-ci.com/Nauja/noteandtag.png?branch=master
-   :target: https://travis-ci.com/Nauja/noteandtag
+.. image:: https://img.shields.io/badge/python-3.6&nbsp;|&nbsp;3.7&nbsp;|&nbsp;3.8-blue.svg
+   :target: https://img.shields.io/badge/python-3.6&nbsp;|&nbsp;3.7&nbsp;|&nbsp;3.8-blue.svg
+   :alt: Python
+
+
+.. image:: https://github.com/Nauja/noteandtag/workflows/Python%20package/badge.svg
+   :target: https://github.com/Nauja/noteandtag/workflows/Python%20package/badge.svg
    :alt: Build Status
 
 
